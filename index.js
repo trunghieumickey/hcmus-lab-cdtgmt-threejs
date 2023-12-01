@@ -1,5 +1,5 @@
 // Import the necessary Three.js modules
-const THREE = require('three');
+const THREE = window.three;
 
 // Create a scene
 const scene = new THREE.Scene();
