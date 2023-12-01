@@ -1,5 +1,5 @@
-// Import the necessary Three.js modules
-import * as THREE from 'three';
+// Import Three.js from CDN
+const THREE = window.THREE;
 
 // Create a scene`
 const scene = new THREE.Scene();
