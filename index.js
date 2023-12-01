@@ -1,7 +1,7 @@
 // Import the necessary Three.js modules
-const THREE = require('three');
+import * as THREE from 'three';
 
-// Create a scene
+// Create a scene`
 const scene = new THREE.Scene();
 
 // Create a camera
