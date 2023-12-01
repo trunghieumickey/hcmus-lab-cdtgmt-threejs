@@ -1,5 +1,5 @@
 // Import Three.js from CDN
-const THREE = window.THREE;
+import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/0.159.0/three.module.js';
 
 // Create a scene`
 const scene = new THREE.Scene();
