@@ -20,7 +20,7 @@ const controls = new OrbitControls(camera, renderer.domElement);
 
 // Create a ground
 const groundGeometry = new THREE.PlaneGeometry(10, 10);
-const groundMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+const groundMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
 const ground = new THREE.Mesh(groundGeometry, groundMaterial);
 ground.rotation.x = -Math.PI / 2;
 scene.add(ground);
@@ -30,9 +30,16 @@ const sunlight = new THREE.DirectionalLight(0xffffff, 1);
 sunlight.position.set(1, 1, 1);
 scene.add(sunlight);
 
+// Create skybox
+const skyboxGeometry = new THREE.BoxGeometry(1000, 1000, 1000);
+const skyboxMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff, side: THREE.BackSide });
+const skybox = new THREE.Mesh(skyboxGeometry, skyboxMaterial);
+scene.add(skybox);
+
 // Render the scene
 function animate() {
   requestAnimationFrame(animate);
   renderer.render(scene, camera);
 }
 animate();
+
