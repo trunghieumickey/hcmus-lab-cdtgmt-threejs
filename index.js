@@ -13,53 +13,15 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-// Track mouse movements
-let isMouseDown = false;
-let previousMousePosition = { x: 0, y: 0 };
+// Create pyramid geometry
+const pyramidGeometry = new THREE.ConeGeometry(1, 2, 4);
 
-document.addEventListener('mousedown', (event) => {
-  isMouseDown = true;
-  previousMousePosition = { x: event.clientX, y: event.clientY };
-});
+// Create pyramid material
+const pyramidMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
 
-document.addEventListener('mousemove', (event) => {
-  if (isMouseDown) {
-    const deltaMove = {
-      x: event.clientX - previousMousePosition.x,
-      y: event.clientY - previousMousePosition.y
-    };
-
-    const deltaRotationQuaternion = new THREE.Quaternion()
-      .setFromEuler(new THREE.Euler(
-        toRadians(deltaMove.y * 1),
-        toRadians(deltaMove.x * 1),
-        0,
-        'XYZ'
-      ));
-
-    camera.quaternion.multiplyQuaternions(deltaRotationQuaternion, camera.quaternion);
-
-    previousMousePosition = { x: event.clientX, y: event.clientY };
-  }
-});
-
-document.addEventListener('mouseup', () => {
-  isMouseDown = false;
-});
-
-function toRadians(angle) {
-  return angle * (Math.PI / 180);
-}
-
-// Render the scene
-function animate() {
-  requestAnimationFrame(animate);
-  pyramidMesh.rotation.y += 0.01;
-  renderer.render(scene, camera);
-}
-animate();
-
-
+// Create pyramid mesh
+const pyramidMesh = new THREE.Mesh(pyramidGeometry, pyramidMaterial);
+scene.add(pyramidMesh);
 
 // Render the scene
 function animate() {
