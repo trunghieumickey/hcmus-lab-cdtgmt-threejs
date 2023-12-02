@@ -58,13 +58,3 @@ function animate() {
   renderer.render(scene, camera);
 }
 animate();
-
-
-
-// Render the scene
-function animate() {
-  requestAnimationFrame(animate);
-  pyramidMesh.rotation.y += 0.01;
-  renderer.render(scene, camera);
-}
-animate();
