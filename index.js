@@ -32,7 +32,7 @@ scene.add(sunlight);
 
 // Create skybox
 const skyboxGeometry = new THREE.BoxGeometry(1000, 1000, 1000);
-const skyboxMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff, side: THREE.BackSide });
+const skyboxMaterial = new THREE.MeshBasicMaterial({ color: 0x87ceeb, side: THREE.BackSide });
 const skybox = new THREE.Mesh(skyboxGeometry, skyboxMaterial);
 scene.add(skybox);
 
