@@ -5,6 +5,9 @@ import { OrbitControls } from './OrbitControls.js';
 // Create a scene
 const scene = new THREE.Scene();
 
+// Create a clock
+const clock = new THREE.Clock();
+
 // Create a camera
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.set(0, 5, 10);
@@ -36,10 +39,34 @@ const skyboxMaterial = new THREE.MeshBasicMaterial({ color: 0x87ceeb, side: THRE
 const skybox = new THREE.Mesh(skyboxGeometry, skyboxMaterial);
 scene.add(skybox);
 
-// Render the scene
+// Fade light intensity to 0 in 1 minute
+const fadeDuration = 60; // 1 minute in seconds
+const initialIntensity = sunlight.intensity;
+let elapsedTime = 0;
+
 function animate() {
   requestAnimationFrame(animate);
+  
+  const delta = clock.getDelta();
+  elapsedTime += delta;
+  
+  if (elapsedTime <= fadeDuration) {
+    const t = elapsedTime / fadeDuration;
+    sunlight.intensity = initialIntensity * (1 - t);
+  } else {
+    sunlight.intensity = 0;
+  }
+  
   renderer.render(scene, camera);
+}
+
+animate();
+function animate() {
+  requestAnimationFrame(animate);
+  
+  renderer.render(scene, camera);
+  
+
 }
 animate();
 
