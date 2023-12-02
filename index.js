@@ -46,16 +46,12 @@ let elapsedTime = 0;
 
 function animate() {
   requestAnimationFrame(animate);
-  
-  const delta = clock.getDelta();
-  elapsedTime += delta;
-  
+  const elapsedTime = clock.getElapsedTime();
   if (elapsedTime <= fadeDuration) {
     const t = elapsedTime / fadeDuration;
     sunlight.intensity = initialIntensity * (1 - t);
   } else {
     sunlight.intensity = 0;
   }
-  
   renderer.render(scene, camera);
 }
