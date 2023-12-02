@@ -1,6 +1,6 @@
 // Import Three.js from CDN
 import * as THREE from 'https://unpkg.com/three@0.159.0/build/three.module.min.js';
-import { OrbitControls } from 'https://unpkg.com/three@0.159.0/examples/jsm/controls/OrbitControls.js';
+import { OrbitControls } from './OrbitControls.js';
 
 // Create a scene
 const scene = new THREE.Scene();
