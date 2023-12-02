@@ -32,27 +32,7 @@ scene.add(sunlight);
 
 // Create skybox
 const skyboxGeometry = new THREE.BoxGeometry(1000, 1000, 1000);
-const skyboxMaterial = new THREE.MeshBasicMaterial({
-  color: 0x87ceeb, // Light blue (sky) color
-  side: THREE.BackSide,
-  vertexColors: THREE.VertexColors
-});
-// Set up gradient colors
-const skyColor = new THREE.Color(0x87ceeb); // Light blue (sky) color
-const groundColor = new THREE.Color(0x808080); // Gray (ground) color
-// Set up gradient vertices
-const vertices = skyboxGeometry.attributes.position;
-const colors = [];
-for (let i = 0; i < vertices.count; i++) {
-  const y = vertices.getY(i);
-
-  if (y > 0) {
-    colors.push(skyColor.r, skyColor.g, skyColor.b);
-  } else {
-    colors.push(groundColor.r, groundColor.g, groundColor.b);
-  }
-}
-skyboxGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+const skyboxMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff, side: THREE.BackSide });
 const skybox = new THREE.Mesh(skyboxGeometry, skyboxMaterial);
 scene.add(skybox);
 
