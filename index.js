@@ -59,3 +59,14 @@ function animate() {
   
   renderer.render(scene, camera);
 }
+
+animate();
+function animate() {
+  requestAnimationFrame(animate);
+  
+  renderer.render(scene, camera);
+  
+
+}
+animate();
+
