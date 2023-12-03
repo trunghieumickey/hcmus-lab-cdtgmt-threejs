@@ -7,7 +7,7 @@ const scene = new THREE.Scene();
 
 // Create a camera
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(0, 10, -20);
+camera.position.set(-9, 1, -6);
 camera.lookAt(scene.position);
 
 // Create a renderer
@@ -35,10 +35,22 @@ const sunlight = new THREE.DirectionalLight(0xffffff, 1);
 sunlight.castShadow = true;
 scene.add(sunlight);
 
+//create a speare representing the sun
+const sunGeometry = new THREE.SphereGeometry(1, 32, 32);
+const sunMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+const sun = new THREE.Mesh(sunGeometry, sunMaterial);
+scene.add(sun);
+
 // create moonlight as a directional light
 const moonlight = new THREE.DirectionalLight(0xb0c4de, 0);
 moonlight.castShadow = true;
 scene.add(moonlight);
+
+//create a speare representing the moon
+const moonGeometry = new THREE.SphereGeometry(1, 32, 32);
+const moonMaterial = new THREE.MeshBasicMaterial({ color: 0x808080 });
+const moon = new THREE.Mesh(moonGeometry, moonMaterial);
+scene.add(moon);
 
 //create ambient
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.1)
@@ -67,15 +79,6 @@ createPyramid(2.3, 1.466, 0, 0); // Khufu pyramid
 createPyramid(2.15, 1.365, 2.15, 4.48); // Khafre pyramid
 createPyramid(1.085, 0.665, 5.44, 10.96); // Menkaure pyramid
 
-
-// Create a helper for the sunlight
-const sunlightHelper = new THREE.DirectionalLightHelper(sunlight, 1);
-scene.add(sunlightHelper);
-
-// Create a helper for the moonlight
-const moonlightHelper = new THREE.DirectionalLightHelper(moonlight, 1);
-scene.add(moonlightHelper);
-
 // Render the scene
 function animate() {
   // Get current time
@@ -92,15 +95,17 @@ function animate() {
 
   // Update the position of the sunlight
   sunlight.position.set(x, y, 1);
+  sun.position.set(x, y, 1);
 
   //change the moonlight intensity
   moonlight.intensity = (1-sunlight.intensity)*0.3;
 
   // Update the position of the moonlight
   moonlight.position.set(-x, -y, 1);
+  moon.position.set(-x, -y, 1);
 
   //adjust the skybox color
-  skybox.material.color.setHSL(0.6, 1, 0.5 * sunlight.intensity);
+  skybox.material.color.setHSL(0.6, 1, 0.5 * (0.01+sunlight.intensity));
 
   // Request the next animation frame
   requestAnimationFrame(animate);
