@@ -7,12 +7,13 @@ const scene = new THREE.Scene();
 
 // Create a camera
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(-100, 100, 100);
+camera.position.set(0, 10, -20);
 camera.lookAt(scene.position);
 
 // Create a renderer
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
 document.body.appendChild(renderer.domElement);
 
 // Create control
@@ -22,19 +23,27 @@ const controls = new OrbitControls(camera, renderer.domElement);
 const textureLoader = new THREE.TextureLoader();
 
 // Create a ground
-const groundGeometry = new THREE.PlaneGeometry(200, 200);
+const groundGeometry = new THREE.BoxGeometry(20, 0.01, 20);
 const sandTexture = textureLoader.load('./texture/desertsand.jpg');
 const groundMaterial = new THREE.MeshStandardMaterial({ map: sandTexture });
 const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-ground.rotation.x = -Math.PI / 2;
-//rotate z 45 degree
-ground.rotation.z = Math.PI / 4;  
+ground.receiveShadow = true;
 scene.add(ground);
 
 // Create sunlight as a directional light
 const sunlight = new THREE.DirectionalLight(0xffffff, 1);
-sunlight.position.set(1, 1, 1);
+sunlight.castShadow = true;
 scene.add(sunlight);
+
+// create moonlight as a directional light
+const moonlight = new THREE.DirectionalLight(0xb0c4de, 0);
+moonlight.castShadow = true;
+scene.add(moonlight);
+
+//create ambient
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.1)
+scene.add(ambientLight);
+
 
 // Create skybox
 const skyboxGeometry = new THREE.BoxGeometry(1000, 1000, 1000);
@@ -46,20 +55,59 @@ scene.add(skybox);
 const pyramidTexture = textureLoader.load('./texture/sandstone.jpg');
 const pyramidMaterial = new THREE.MeshStandardMaterial({ map: pyramidTexture });
 function createPyramid(side, height, west, south) {
-  const pyramidGeometry = new THREE.ConeGeometry(side / 2, height, 4);
+  const pyramidGeometry = new THREE.ConeGeometry(side / 2, height, 4, 5);
   const pyramid = new THREE.Mesh(pyramidGeometry, pyramidMaterial);
-  pyramid.position.set(west-50, height / 2, south-50);
+  pyramid.position.set(west-5, height / 2, south-5);
+  pyramid.castShadow = true;
+  pyramid.rotation.y = Math.PI / 4;
   scene.add(pyramid);
 }
 
-createPyramid(23, 14.66, 0, 0); // Khufu pyramid
-createPyramid(21.5, 13.65, 21.5, 44.8); // Khafre pyramid
-createPyramid(10.85, 6.65, 54.4, 109.6); // Menkaure pyramid
+createPyramid(2.3, 1.466, 0, 0); // Khufu pyramid
+createPyramid(2.15, 1.365, 2.15, 4.48); // Khafre pyramid
+createPyramid(1.085, 0.665, 5.44, 10.96); // Menkaure pyramid
+
+
+// Create a helper for the sunlight
+const sunlightHelper = new THREE.DirectionalLightHelper(sunlight, 1);
+scene.add(sunlightHelper);
+
+// Create a helper for the moonlight
+const moonlightHelper = new THREE.DirectionalLightHelper(moonlight, 1);
+scene.add(moonlightHelper);
 
 // Render the scene
 function animate() {
+  // Get current time
+  const time = Date.now();
+
+  // Calculate the position of the sunlight based on time
+  const angle = (time / 1000) % (Math.PI * 2);
+  const radius = 15;
+  const x = Math.cos(angle) * radius;
+  const y = Math.sin(angle) * radius;
+
+  // change the sunlight intensity
+  sunlight.intensity = Math.max(0, Math.sin(angle));
+
+  // Update the position of the sunlight
+  sunlight.position.set(x, y, 1);
+
+  //change the moonlight intensity
+  moonlight.intensity = (1-sunlight.intensity)*0.3;
+
+  // Update the position of the moonlight
+  moonlight.position.set(-x, -y, 1);
+
+  //adjust the skybox color
+  skybox.material.color.setHSL(0.6, 1, 0.5 * sunlight.intensity);
+
+  // Request the next animation frame
   requestAnimationFrame(animate);
+
+  // Render the scene
   renderer.render(scene, camera);
 }
 animate();
+
 
