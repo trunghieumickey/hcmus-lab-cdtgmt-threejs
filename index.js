@@ -24,7 +24,7 @@ const textureLoader = new THREE.TextureLoader();
 // Create a ground
 const groundGeometry = new THREE.PlaneGeometry(200, 200);
 const sandTexture = textureLoader.load('./texture/desertsand.jpg');
-const groundMaterial = new THREE.MeshBasicMaterial({ map: sandTexture });
+const groundMaterial = new THREE.MeshStandardMaterial({ map: sandTexture });
 const ground = new THREE.Mesh(groundGeometry, groundMaterial);
 ground.rotation.x = -Math.PI / 2;
 //rotate z 45 degree
@@ -44,7 +44,7 @@ scene.add(skybox);
 
 // Create pyramid
 const pyramidTexture = textureLoader.load('./texture/sandstone.jpg');
-const pyramidMaterial = new THREE.MeshBasicMaterial({ map: pyramidTexture });
+const pyramidMaterial = new THREE.MeshStandardMaterial({ map: pyramidTexture });
 function createPyramid(side, height, west, south) {
   const pyramidGeometry = new THREE.ConeGeometry(side / 2, height, 4);
   const pyramid = new THREE.Mesh(pyramidGeometry, pyramidMaterial);
