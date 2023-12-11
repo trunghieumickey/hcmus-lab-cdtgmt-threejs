@@ -67,7 +67,7 @@ scene.add(skybox);
 const pyramidTexture = textureLoader.load('./texture/sandstone.jpg');
 const pyramidMaterial = new THREE.MeshStandardMaterial({ map: pyramidTexture });
 function createPyramid(side, height, west, south) {
-  const pyramidGeometry = new THREE.ConeGeometry(side / 2, height, 4, 5);
+  const pyramidGeometry = new THREE.ConeGeometry(side / 2, height, 4);
   const pyramid = new THREE.Mesh(pyramidGeometry, pyramidMaterial);
   pyramid.position.set(west-5, height / 2, south-5);
   pyramid.castShadow = true;
