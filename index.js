@@ -23,29 +23,64 @@ const controls = new OrbitControls(camera, renderer.domElement);
 //texture loader
 const textureLoader = new THREE.TextureLoader();
 
+//gltf loader
+const gltfLoader = new GLTFLoader();
+
+
+const scale = 0.00001; // Adjust this value as needed
+var planeModel;
+gltfLoader.load('./model/plane.glb', (gltf) => {
+  gltf.scene.traverse(function (node) {
+    if (node.isMesh) {
+      // Enable shadow casting
+      node.castShadow = true;
+
+      // Swap the material
+      node.material = new THREE.MeshPhongMaterial({ map: node.material.map });
+
+    }
+  });
+  gltf.scene.scale.set(scale, scale, scale);
+  planeModel = gltf.scene;
+  scene.add(planeModel);
+}
+);
+
 // Create a ground
 const groundGeometry = new THREE.BoxGeometry(20, 0.01, 20);
 const sandTexture = textureLoader.load('./texture/desertsand.jpg');
-const groundMaterial = new THREE.MeshStandardMaterial({ map: sandTexture });
+sandTexture.wrapS = THREE.RepeatWrapping;
+sandTexture.wrapT = THREE.RepeatWrapping;
+sandTexture.repeat.set(20, 20); 
+const groundMaterial = new THREE.MeshPhongMaterial({ map: sandTexture });
 const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+//duplicate the ground texture
+
 ground.receiveShadow = true;
 scene.add(ground);
 
 // Create sunlight as a directional light
-const sunlight = new THREE.DirectionalLight(0xffffff, 1);
-sunlight.castShadow = true;
-scene.add(sunlight);
+function createLight(color) {
+    const sunlight = new THREE.DirectionalLight(color, 1);
+    sunlight.castShadow = true;
+    sunlight.shadow.mapSize.width = 1024; // default is 512
+    sunlight.shadow.mapSize.height = 1024;
+    sunlight.shadow.camera.left = -20; // default is -5
+    sunlight.shadow.camera.right = 20; // default is 5
+    sunlight.shadow.camera.top = 20; // default is 5
+    sunlight.shadow.camera.bottom = -20; // default is -5
+    sunlight.shadow.camera.updateProjectionMatrix();
+    scene.add(sunlight);
+    return sunlight;
+}
+const sunlight = createLight(0xffffff);
+const moonlight = createLight(0xb0c4de);
 
 //create a speare representing the sun
 const sunGeometry = new THREE.SphereGeometry(1, 32, 32);
 const sunMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
 const sun = new THREE.Mesh(sunGeometry, sunMaterial);
 scene.add(sun);
-
-// create moonlight as a directional light
-const moonlight = new THREE.DirectionalLight(0xb0c4de, 0);
-moonlight.castShadow = true;
-scene.add(moonlight);
 
 //create a speare representing the moon
 const moonGeometry = new THREE.SphereGeometry(1, 32, 32);
@@ -66,30 +101,50 @@ scene.add(skybox);
 
 // Create pyramid
 const pyramidTexture = textureLoader.load('./texture/sandstone.jpg');
-const pyramidMaterial = new THREE.MeshStandardMaterial({ map: pyramidTexture });
+const pyramidMaterial = new THREE.MeshPhongMaterial({ map: pyramidTexture });
 function createPyramid(side, height, west, south) {
   const pyramidGeometry = new THREE.ConeGeometry(side / 2, height, 4);
   const pyramid = new THREE.Mesh(pyramidGeometry, pyramidMaterial);
   pyramid.position.set(west-5, height / 2, south-5);
   pyramid.castShadow = true;
+  pyramid.receiveShadow = true; 
   pyramid.rotation.y = Math.PI / 4;
+  
   scene.add(pyramid);
+  return pyramid;
 }
 
-createPyramid(2.3, 1.466, 0, 0); // Khufu pyramid
-createPyramid(2.15, 1.365, 2.15, 4.48); // Khafre pyramid
-createPyramid(1.085, 0.665, 5.44, 10.96); // Menkaure pyramid
+const Khufu = createPyramid(2.304, 1.466, 0, 0); // Khufu pyramid
+const Khafre = createPyramid(2.155, 1.435, 2.15, 4.48); // Khafre pyramid
+const Menkaure = createPyramid(1.085, 0.665, 5.44, 10.96); // Menkaure pyramid
+
+// plane path configuration
+const length = 10;
+const flightHeight = 2;
+const direction = new THREE.Vector3().subVectors(Menkaure.position, Khufu.position).normalize();
+const extendedKhufuPosition = new THREE.Vector3().addVectors(Khufu.position, direction.clone().multiplyScalar(-length));
+const extendedMenkaurePosition = new THREE.Vector3().addVectors(Menkaure.position, direction.clone().multiplyScalar(length));
+const lookAtPosition = new THREE.Vector3(extendedKhufuPosition.x, flightHeight, extendedKhufuPosition.z);
 
 // Render the scene
 function animate() {
+
   // Get current time
-  const time = Date.now();
+  const time = Date.now() * 0.00001 * 24; // Scale time by a day
 
   // Calculate the position of the sunlight based on time
-  const angle = (time / 1000) % (Math.PI * 2);
-  const radius = 15;
+  const angle = (time) % (Math.PI * 2);
+  const radius = 50;
   const x = Math.cos(angle) * radius;
   const y = Math.sin(angle) * radius;
+  const lerpFactor = time*0.1 % 1;
+
+  if (planeModel) {
+    planeModel.position.lerpVectors(extendedKhufuPosition, extendedMenkaurePosition, lerpFactor);
+    planeModel.position.y = flightHeight //not crusing altitude but just to make it visible
+    planeModel.lookAt(lookAtPosition);
+    planeModel.rotation.y += Math.PI / 2;
+  }
 
   // change the sunlight intensity
   sunlight.intensity = Math.max(0, Math.sin(angle));
@@ -110,6 +165,8 @@ function animate() {
 
   // Request the next animation frame
   requestAnimationFrame(animate);
+
+  
 
   // Render the scene
   renderer.render(scene, camera);
