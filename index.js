@@ -1,7 +1,7 @@
 // Import Three.js from CDN
-import * as THREE from 'https://unpkg.com/three@0.159.0/build/three.module.min.js';
+import * as THREE from 'https://unpkg.com/three/build/three.module.min.js';
 import { OrbitControls } from './script/OrbitControls.js';
-// import { GLTFLoader } from './script/GLTFLoader.js';
+import { GLTFLoader } from './script/GLTFLoader.js';
 
 // Create a scene
 const scene = new THREE.Scene();
