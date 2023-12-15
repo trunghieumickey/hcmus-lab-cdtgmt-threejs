@@ -7,9 +7,18 @@ import { GLTFLoader } from './script/GLTFLoader.js';
 const scene = new THREE.Scene();
 
 // Create a camera
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(-9, 1, -6);
-camera.lookAt(scene.position);
+const camera_1 = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const camera_2 = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
+
+camera_1.position.set(-9, 1, -6);
+camera_1.lookAt(scene.position);
+
+camera_2.position.set(-9, 1, -6);
+camera_2.lookAt(scene.position);
+
+//create helper for camera 2
+const cameraHelper = new THREE.CameraHelper(camera_2);
+scene.add(cameraHelper);
 
 // Create a renderer
 const renderer = new THREE.WebGLRenderer();
@@ -18,7 +27,7 @@ renderer.shadowMap.enabled = true;
 document.body.appendChild(renderer.domElement);
 
 // Create control
-const controls = new OrbitControls(camera, renderer.domElement);
+const controls = new OrbitControls(camera_1, renderer.domElement);
 
 //texture loader
 const textureLoader = new THREE.TextureLoader();
@@ -42,6 +51,7 @@ gltfLoader.load('./model/plane.glb', (gltf) => {
   });
   gltf.scene.scale.set(scale, scale, scale);
   planeModel = gltf.scene;
+  // create another camera that on bottom of the plane
   scene.add(planeModel);
 }
 );
@@ -144,6 +154,10 @@ function animate() {
     planeModel.position.y = flightHeight //not crusing altitude but just to make it visible
     planeModel.lookAt(lookAtPosition);
     planeModel.rotation.y += Math.PI / 2;
+
+    camera_2.position.copy(planeModel.position);
+    camera_2.position.y -= 0.1;
+    camera_2.lookAt(camera_2.position.x, 0, camera_2.position.z);
   }
 
   // change the sunlight intensity
@@ -166,10 +180,8 @@ function animate() {
   // Request the next animation frame
   requestAnimationFrame(animate);
 
-  
-
   // Render the scene
-  renderer.render(scene, camera);
+  renderer.render(scene, camera_2);
 }
 animate();
 
