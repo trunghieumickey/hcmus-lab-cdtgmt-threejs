@@ -16,6 +16,8 @@ camera_1.lookAt(scene.position);
 camera_2.position.set(-9, 1, -6);
 camera_2.lookAt(scene.position);
 
+var currentCamera = camera_1;
+
 //create helper for camera 2
 const cameraHelper = new THREE.CameraHelper(camera_2);
 scene.add(cameraHelper);
@@ -34,7 +36,6 @@ const textureLoader = new THREE.TextureLoader();
 
 //gltf loader
 const gltfLoader = new GLTFLoader();
-
 
 const scale = 0.00001; // Adjust this value as needed
 var planeModel;
@@ -61,7 +62,7 @@ const groundGeometry = new THREE.BoxGeometry(20, 0.01, 20);
 const sandTexture = textureLoader.load('./texture/desertsand.jpg');
 sandTexture.wrapS = THREE.RepeatWrapping;
 sandTexture.wrapT = THREE.RepeatWrapping;
-sandTexture.repeat.set(20, 20); 
+sandTexture.repeat.set(20, 20);
 const groundMaterial = new THREE.MeshPhongMaterial({ map: sandTexture });
 const ground = new THREE.Mesh(groundGeometry, groundMaterial);
 //duplicate the ground texture
@@ -71,17 +72,17 @@ scene.add(ground);
 
 // Create sunlight as a directional light
 function createLight(color) {
-    const sunlight = new THREE.DirectionalLight(color, 1);
-    sunlight.castShadow = true;
-    sunlight.shadow.mapSize.width = 1024; // default is 512
-    sunlight.shadow.mapSize.height = 1024;
-    sunlight.shadow.camera.left = -20; // default is -5
-    sunlight.shadow.camera.right = 20; // default is 5
-    sunlight.shadow.camera.top = 20; // default is 5
-    sunlight.shadow.camera.bottom = -20; // default is -5
-    sunlight.shadow.camera.updateProjectionMatrix();
-    scene.add(sunlight);
-    return sunlight;
+  const sunlight = new THREE.DirectionalLight(color, 1);
+  sunlight.castShadow = true;
+  sunlight.shadow.mapSize.width = 1024; // default is 512
+  sunlight.shadow.mapSize.height = 1024;
+  sunlight.shadow.camera.left = -20; // default is -5
+  sunlight.shadow.camera.right = 20; // default is 5
+  sunlight.shadow.camera.top = 20; // default is 5
+  sunlight.shadow.camera.bottom = -20; // default is -5
+  sunlight.shadow.camera.updateProjectionMatrix();
+  scene.add(sunlight);
+  return sunlight;
 }
 const sunlight = createLight(0xffffff);
 const moonlight = createLight(0xb0c4de);
@@ -115,11 +116,11 @@ const pyramidMaterial = new THREE.MeshPhongMaterial({ map: pyramidTexture });
 function createPyramid(side, height, west, south) {
   const pyramidGeometry = new THREE.ConeGeometry(side / 2, height, 4);
   const pyramid = new THREE.Mesh(pyramidGeometry, pyramidMaterial);
-  pyramid.position.set(west-5, height / 2, south-5);
+  pyramid.position.set(west - 5, height / 2, south - 5);
   pyramid.castShadow = true;
-  pyramid.receiveShadow = true; 
+  pyramid.receiveShadow = true;
   pyramid.rotation.y = Math.PI / 4;
-  
+
   scene.add(pyramid);
   return pyramid;
 }
@@ -136,6 +137,18 @@ const extendedKhufuPosition = new THREE.Vector3().addVectors(Khufu.position, dir
 const extendedMenkaurePosition = new THREE.Vector3().addVectors(Menkaure.position, direction.clone().multiplyScalar(length));
 const lookAtPosition = new THREE.Vector3(extendedKhufuPosition.x, flightHeight, extendedKhufuPosition.z);
 
+// Create an object to hold the state of key presses
+let keyState = {};
+
+// Add event listeners for keydown and keyup events
+window.addEventListener('keydown', function(e) {
+  keyState[e.key.toUpperCase()] = true;
+});
+
+window.addEventListener('keyup', function(e) {
+  keyState[e.key.toUpperCase()] = false;
+});
+
 // Render the scene
 function animate() {
 
@@ -147,17 +160,18 @@ function animate() {
   const radius = 50;
   const x = Math.cos(angle) * radius;
   const y = Math.sin(angle) * radius;
-  const lerpFactor = time*0.1 % 1;
+  const lerpFactor = time * 0.1 % 1;
 
   if (planeModel) {
     planeModel.position.lerpVectors(extendedKhufuPosition, extendedMenkaurePosition, lerpFactor);
     planeModel.position.y = flightHeight //not crusing altitude but just to make it visible
     planeModel.lookAt(lookAtPosition);
     planeModel.rotation.y += Math.PI / 2;
-
+    
     camera_2.position.copy(planeModel.position);
     camera_2.position.y -= 0.1;
     camera_2.lookAt(camera_2.position.x, 0, camera_2.position.z);
+    camera_2.rotation.z = planeModel.rotation.z;
   }
 
   // change the sunlight intensity
@@ -168,20 +182,25 @@ function animate() {
   sun.position.set(x, y, 1);
 
   //change the moonlight intensity
-  moonlight.intensity = (1-sunlight.intensity)*0.3;
+  moonlight.intensity = (1 - sunlight.intensity) * 0.3;
 
   // Update the position of the moonlight
   moonlight.position.set(-x, -y, 1);
   moon.position.set(-x, -y, 1);
 
   //adjust the skybox color
-  skybox.material.color.setHSL(0.6, 1, 0.5 * (0.01+sunlight.intensity));
+  skybox.material.color.setHSL(0.6, 1, 0.5 * (0.01 + sunlight.intensity));
 
   // Request the next animation frame
   requestAnimationFrame(animate);
 
-  // Render the scene
-  renderer.render(scene, camera_2);
+  // Render the scene with camera 2 if "Q" is held down
+  if (keyState["Q"]) {
+    renderer.render(scene, camera_2);
+  } else {
+    renderer.render(scene, camera_1);
+  }
+
 }
 animate();
 
