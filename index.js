@@ -1,7 +1,7 @@
 // Import Three.js from CDN
-import * as THREE from 'https://unpkg.com/three/build/three.module.min.js';
-import { OrbitControls } from './script/OrbitControls.js';
-import { GLTFLoader } from './script/GLTFLoader.js';
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 // Create a scene
 const scene = new THREE.Scene();
@@ -17,10 +17,6 @@ camera_2.position.set(-9, 1, -6);
 camera_2.lookAt(scene.position);
 
 var currentCamera = camera_1;
-
-//create helper for camera 2
-const cameraHelper = new THREE.CameraHelper(camera_2);
-scene.add(cameraHelper);
 
 // Create a renderer
 const renderer = new THREE.WebGLRenderer();
